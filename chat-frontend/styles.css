@@ -1,0 +1,67 @@
+/* chat-frontend/style.css */
+body {
+  background-color: #121212;
+  color: #eee;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+form {
+  background-color: #1e1e1e;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  margin: 100px auto;
+}
+input, button {
+  background-color: #333;
+  color: #eee;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 8px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+button {
+  cursor: pointer;
+}
+button:hover {
+  background-color: #444;
+}
+#messages {
+  border: 1px solid #444;
+  height: 60vh;
+  overflow-y: scroll;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.message {
+  margin-bottom: 8px;
+}
+.username {
+  font-weight: bold;
+  color: #90caf9; /* Light blue */
+  margin-right: 5px;
+}
+.delete-btn {
+  background-color: #d32f2f;
+  color: #fff;
+  border: none;
+  padding: 4px 8px;
+  margin-left: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.delete-btn:hover {
+  background-color: #b71c1c;
+}
+#sendBtn {
+  background-color: #388e3c;
+  color: #fff;
+  border: none;
+  padding: 10px;
+}
+#sendBtn:hover {
+  background-color: #2e7d32;
+}
