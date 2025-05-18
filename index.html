@@ -1,0 +1,126 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Login</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="login-container">
+    <h1>Chat Login</h1>
+    <form id="loginForm">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+
+      <button type="submit">Log In</button>
+    </form>
+    <p id="error" class="error-message"></p>
+  </div>
+
+  <script type="module">
+    import { apiBaseUrl } from './js/config.js';
+    const form = document.getElementById('loginForm');
+    const errorEl = document.getElementById('error');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const username = form.username.value.trim();
+      const password = form.password.value;
+      try {
+        const res = await fetch(`${apiBaseUrl}/login`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({username, password})
+        });
+        if (!res.ok) throw new Error('Invalid credentials');
+        const {token, username: user} = await res.json();
+        localStorage.setItem('token', token);
+        localStorage.setItem('username', user);
+        window.location.href = 'index.html';
+      } catch (err) {
+        errorEl.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>
+
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Room</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="chat-container">
+    <h1>Chat Room</h1>
+    <div id="messages" class="messages"></div>
+    <form id="chatForm">
+      <input type="text" id="messageInput" placeholder="Type a message..." required autocomplete="off">
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { apiBaseUrl } from './js/config.js';
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+    if (!token || !username) {
+      window.location.href = 'login.html';
+    }
+
+    const messagesDiv = document.getElementById('messages');
+    const chatForm = document.getElementById('chatForm');
+
+    async function loadMessages() {
+      const res = await fetch(`${apiBaseUrl}/messages?token=${token}`);
+      const msgs = await res.json();
+      messagesDiv.innerHTML = '';
+      msgs.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'message';
+        div.innerHTML = `<strong>${m.user}:</strong> ${m.text}`;
+        if (username === 'Gavin') {
+          const del = document.createElement('button');
+          del.textContent = 'Delete';
+          del.onclick = () => deleteMessage(m.id);
+          div.append(del);
+        }
+        messagesDiv.append(div);
+      });
+    }
+
+    async function postMessage(text) {
+      await fetch(`${apiBaseUrl}/messages`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({token, text})
+      });
+      loadMessages();
+    }
+
+    async function deleteMessage(id) {
+      await fetch(`${apiBaseUrl}/messages/${id}?token=${token}`, { method: 'DELETE' });
+      loadMessages();
+    }
+
+    chatForm.addEventListener('submit', e => {
+      e.preventDefault();
+      postMessage(chatForm.messageInput.value.trim());
+      chatForm.messageInput.value = '';
+    });
+
+    // initial load & polling
+    loadMessages();
+    setInterval(loadMessages, 3000);
+  </script>
+</body>
+</html>
